@@ -4,7 +4,7 @@ require 'json'
 module Twocheckout
   class API
     PROD_BASE = 'https://www.2checkout.com'
-    SANDBOX_BASE = 'https://sandbox.2checkout.com'
+    SANDBOX_BASE = 'https://www.2checkout.com'
     API_VERSION = '1'
 
     def self.credentials=(opts)
@@ -30,6 +30,7 @@ module Twocheckout
       end
     end
 
+
     private
 
     def self.set_opts(http_method, api_call, params = null)
@@ -53,6 +54,17 @@ module Twocheckout
         if http_method == :get
           url += hash_to_querystring(params)
           params = nil
+        else
+            keys_in_url = []
+            params.each do |key, value|
+                if value.is_a?(Array)
+                    url += "?#{key}=#{value.join("&#{key}=")}"
+                    keys_in_url << key
+                end
+            end
+            keys_in_url.each do |key|
+                params.delete(key)
+            end
         end
 
         opts = {
@@ -76,6 +88,7 @@ module Twocheckout
       return '' if hash.nil? || hash.empty?
       '?' + hash.map { |k,v| "#{URI.encode(k.to_s)}=#{URI.encode(v.to_s)}" }.join('&')
     end
+
 
   end
 end
